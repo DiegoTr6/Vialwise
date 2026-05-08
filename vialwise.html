@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vialwise — Peptide Reconstitution & Dosing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..600,30..100;1,9..144,300..600,30..100&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   VIALWISE — Peptide Reconstitution & Dosing
+   ============================================================ */
+
+:root {
+  --bg: #f7f6f1;
+  --surface: #ffffff;
+  --surface-2: #f0eee7;
+  --surface-3: #e6e3da;
+  --border: #e3e0d4;
+  --border-strong: #cfcbbb;
+  --text: #131614;
+  --text-muted: #5a5a52;
+  --text-subtle: #908d83;
+  --accent: #1a5d57;        /* deeper, more clinical teal */
+  --accent-2: #c97b3a;      /* warm amber as secondary */
+  --accent-soft: #d8eae7;
+  --accent-hover: #134541;
+  --liquid: #4ea59e;
+  --liquid-edge: #2c7a73;
+  --warning: #a85e0e;
+  --warning-soft: #f8e8d0;
+  --error: #9c1818;
+  --error-soft: #f6dbdb;
+  --success: #156b3f;
+  --shadow-sm: 0 1px 2px rgba(20, 22, 18, 0.04);
+  --shadow: 0 6px 16px rgba(20, 22, 18, 0.07), 0 1px 3px rgba(20, 22, 18, 0.04);
+  --shadow-lg: 0 18px 44px rgba(20, 22, 18, 0.10), 0 4px 12px rgba(20, 22, 18, 0.05);
+  --serif: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --mono: 'Geist Mono', ui-monospace, Menlo, monospace;
+  --radius: 8px;
+  --radius-lg: 14px;
+}
+
+[data-theme="dark"] {
+  --bg: #0f1110;
+  --surface: #181b19;
+  --surface-2: #1f2321;
+  --surface-3: #2a2e2c;
+  --border: #2c302e;
+  --border-strong: #3d423f;
+  --text: #f0eee5;
+  --text-muted: #adaba0;
+  --text-subtle: #6f6e64;
+  --accent: #6cc7c0;
+  --accent-2: #e9a268;
+  --accent-soft: #1a3331;
+  --accent-hover: #82d4cd;
+  --liquid: #6cc7c0;
+  --liquid-edge: #98ddd6;
+  --warning: #f0b657;
+  --warning-soft: #3a2a10;
+  --error: #f87171;
+  --error-soft: #3a1818;
+  --success: #4ade80;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 18px 44px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  font-size: 14.5px;
+  font-feature-settings: "ss01", "ss02", "cv01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.25s ease, color 0.25s ease;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* Subtle paper-grain texture in light mode */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+  z-index: 0;
+}
+[data-theme="dark"] body::before { display: none; }
+.container, .header, .disclaimer { position: relative; z-index: 1; }
+
+/* ── Disclaimer banner ─────────────────────────────────────── */
+.disclaimer {
+  background: var(--warning-soft);
+  color: var(--warning);
+  border-bottom: 1px solid color-mix(in srgb, var(--warning) 25%, transparent);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  padding: 9px 16px;
+  letter-spacing: 0.005em;
+  font-family: var(--sans);
+}
+.disclaimer strong { font-weight: 600; }
+
+/* ── Header ────────────────────────────────────────────────── */
+.header {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 24px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-logo {
+  width: 44px; height: 44px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.brand-text { display: flex; flex-direction: column; }
+
+.brand-name {
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(30px, 4.4vw, 42px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.brand-name b {
+  font-weight: 500;
+  font-style: italic;
+  color: var(--accent);
+}
+
+.brand-tag {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--text-subtle);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+.icon-btn {
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.icon-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* ── Tabs ──────────────────────────────────────────────────── */
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  margin: 28px 0 28px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  background: transparent;
+  border: none;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 12px 18px;
+  cursor: pointer;
+  position: relative;
+  letter-spacing: -0.005em;
+  transition: color 0.15s;
+  white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--text); }
+.tab.active::after {
+  content: "";
+  position: absolute;
+  inset: auto 14px -1px 14px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+.tab-count {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-weight: 500;
+  min-width: 18px;
+  text-align: center;
+}
+.tab.active .tab-count { background: var(--accent-soft); color: var(--accent); }
+
+.panel { display: none; }
+.panel.active { display: block; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Layout & cards ────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 22px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; gap: 18px; }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  box-shadow: var(--shadow-sm);
+}
+.card-eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-subtle);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.card-title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  margin-bottom: 22px;
+  color: var(--text);
+}
+.card-title b { font-weight: 500; }
+
+/* ── Form fields ───────────────────────────────────────────── */
+.field { margin-bottom: 18px; }
+.field-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 7px;
+}
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+.label-hint {
+  font-size: 11.5px;
+  color: var(--text-subtle);
+  font-weight: 400;
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+}
+
+.input, .select {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-weight: 500;
+}
+.input:focus, .select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.input::placeholder { color: var(--text-subtle); font-weight: 400; }
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='none' stroke='%235a5a52' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M1 1.5l5 5 5-5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+[data-theme="dark"] .select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='none' stroke='%23adaba0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M1 1.5l5 5 5-5'/></svg>");
+}
+
+/* Field with attached unit toggle */
+.input-group {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input-group:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.input-group .input {
+  border: none;
+  border-radius: 0;
+  flex: 1;
+}
+.input-group .input:focus { box-shadow: none; }
+.unit-toggle {
+  display: flex;
+  background: var(--surface-2);
+  border-left: 1px solid var(--border);
+}
+.unit-toggle button {
+  background: transparent;
+  border: none;
+  padding: 0 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.15s;
+}
+.unit-toggle button.active {
+  background: var(--accent);
+  color: white;
+}
+[data-theme="dark"] .unit-toggle button.active { color: var(--bg); }
+
+/* Custom strength reveal */
+.custom-strength {
+  margin-top: 8px;
+  display: none;
+}
+.custom-strength.active { display: block; }
+
+/* Field error */
+.field-error {
+  display: none;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--error);
+  font-weight: 500;
+}
+.field.has-error .input,
+.field.has-error .select,
+.field.has-error .input-group { border-color: var(--error); }
+.field.has-error .field-error { display: block; }
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 13.5px;
+  letter-spacing: -0.005em;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: background 0.15s, transform 0.1s;
+}
+[data-theme="dark"] .btn { color: var(--bg); }
+.btn:hover { background: var(--accent-hover); }
+.btn:active { transform: scale(0.97); }
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+.btn-secondary:hover { background: var(--surface-2); border-color: var(--text-muted); }
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.btn-ghost:hover { color: var(--text); background: var(--surface-2); }
+.btn-danger {
+  background: var(--error-soft);
+  color: var(--error);
+  border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+}
+.btn-danger:hover { background: color-mix(in srgb, var(--error) 15%, var(--surface)); }
+.btn-block { width: 100%; justify-content: center; }
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* ============================================================
+   RECONSTITUTION TAB
+   ============================================================ */
+
+/* Big recommendation display */
+.recommend-hero {
+  background: linear-gradient(135deg, var(--accent-soft), color-mix(in srgb, var(--accent-soft) 50%, var(--surface)));
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: var(--radius-lg);
+  padding: 26px 24px 22px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.recommend-hero::before {
+  content: "";
+  position: absolute;
+  top: -40%; right: -15%;
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%);
+  pointer-events: none;
+}
+.recommend-eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+  font-weight: 500;
+  margin-bottom: 6px;
+  position: relative;
+}
+.recommend-amount {
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(48px, 8vw, 72px);
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.04em;
+  position: relative;
+}
+.recommend-amount .unit {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 0.36em;
+  color: var(--accent);
+  letter-spacing: 0;
+  margin-left: 6px;
+  vertical-align: 0.3em;
+}
+.recommend-sub {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  position: relative;
+}
+
+.recommend-cta {
+  display: flex; gap: 8px;
+  justify-content: center;
+  margin-top: 18px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+/* "How to add it" instructional panel */
+.how-to {
+  margin-top: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.how-to-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.how-to-title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+.how-to-aside {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-subtle);
+  letter-spacing: 0.04em;
+}
+
+.syringe-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 14px;
+  min-height: 40px;
+}
+.mini-syringe {
+  width: 78px;
+  height: 32px;
+  flex-shrink: 0;
+}
+.mini-syringe-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-subtle);
+  margin-left: 6px;
+}
+
+.how-to-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text);
+}
+.how-to-step:last-child { margin-bottom: 0; }
+.step-num {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+[data-theme="dark"] .step-num { color: var(--bg); }
+.how-to-step b { color: var(--text); font-weight: 600; }
+.how-to-step .mono { font-family: var(--mono); font-weight: 500; }
+
+/* Resulting ratio block */
+.ratio-result {
+  background: var(--surface-2);
+  border-left: 3px solid var(--accent);
+  padding: 14px 18px;
+  margin-top: 18px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.ratio-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--text-subtle);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.ratio-text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.ratio-text mark {
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 0.85em;
+}
+
+/* Custom override slider area */
+.override {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+.override-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+}
+.override .input { max-width: 200px; }
+
+/* ============================================================
+   DRAWING TAB
+   ============================================================ */
+
+.syringe-stage {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 14px 16px;
+  margin: 4px 0 14px;
+  position: relative;
+}
+.syringe-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+}
+
+.warning-box {
+  display: none;
+  margin-top: 12px;
+  background: var(--error-soft);
+  border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+  color: var(--error);
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  align-items: center;
+  gap: 10px;
+}
+.warning-box.visible { display: flex; }
+
+.draw-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+.draw-meta-item {
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  border-left: 2px solid var(--accent);
+}
+.draw-meta-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-subtle);
+  margin-bottom: 4px;
+}
+.draw-meta-value {
+  font-family: var(--mono);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.draw-meta-value .unit {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+/* Results card */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.result-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.result-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-subtle);
+  font-weight: 500;
+}
+.result-value {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 5px;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.result-value .unit {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-left: 4px;
+}
+.result-sub {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.summary {
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.summary-text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-size: 17px;
+  letter-spacing: -0.005em;
+  color: var(--text);
+  flex: 1;
+  min-width: 200px;
+  line-height: 1.4;
+}
+.summary-text mark {
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 0.85em;
+}
+
+.disclosure summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  transition: color 0.15s;
+}
+.disclosure summary:hover { color: var(--text); }
+.disclosure summary::-webkit-details-marker { display: none; }
+.disclosure summary::before {
+  content: "+";
+  font-family: var(--mono);
+  width: 16px;
+  font-size: 14px;
+  color: var(--accent);
+}
+.disclosure[open] summary::before { content: "−"; }
+.formula {
+  background: var(--surface-2);
+  border-left: 2px solid var(--accent);
+  padding: 14px 16px;
+  margin: 8px 0 4px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.formula div { margin: 4px 0; }
+.formula em { color: var(--text-subtle); font-style: normal; }
+
+/* ── Saved profiles tab ───────────────────────────────────── */
+.profiles-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-subtle);
+}
+.profiles-empty p.lead {
+  font-family: var(--serif);
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-size: 22px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+.profiles-empty .small { font-size: 13px; max-width: 360px; margin: 0 auto; line-height: 1.6; }
+
+.profiles-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  position: relative;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.profile-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.profile-name {
+  font-family: var(--serif);
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-weight: 400;
+  font-size: 21px;
+  margin-bottom: 4px;
+  color: var(--text);
+  letter-spacing: -0.015em;
+}
+.profile-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-subtle);
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+}
+.profile-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.profile-stat-label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-subtle);
+}
+.profile-stat-value {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 2px;
+  letter-spacing: -0.01em;
+}
+.profile-actions { display: flex; gap: 6px; }
+
+/* ── Toast & Dialog ─────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 18px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 100;
+  letter-spacing: -0.005em;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.dialog-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(20, 22, 18, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+.dialog-backdrop.show { display: flex; }
+.dialog {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 420px;
+  padding: 26px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+}
+.dialog h3 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-weight: 400;
+  font-size: 24px;
+  margin-bottom: 18px;
+  letter-spacing: -0.015em;
+}
+.dialog .field { margin-bottom: 14px; }
+.dialog-actions {
+  display: flex; justify-content: flex-end; gap: 8px;
+  margin-top: 4px;
+}
+
+/* Footer */
+.footer-note {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-subtle);
+  margin-top: 50px;
+  font-style: italic;
+  font-family: var(--serif);
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  letter-spacing: -0.005em;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .header { padding: 22px 16px 4px; }
+  .container { padding: 0 16px; }
+  .card { padding: 20px; }
+  .results-grid { grid-template-columns: 1fr; }
+  .draw-meta { grid-template-columns: 1fr; }
+  .summary { flex-direction: column; align-items: stretch; }
+  .summary .btn { align-self: flex-start; }
+  .recommend-amount { font-size: 56px; }
+  .syringe-row { gap: 8px; }
+  .mini-syringe { width: 64px; height: 26px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Disclaimer banner ────────────────────────────────────── -->
+<div class="disclaimer">
+  <strong>For research purposes only.</strong> Not medical advice. Consult a licensed healthcare provider before using any peptide.
+</div>
+
+<!-- Header ────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="brand">
+    <!-- Logo: stylized vial with measurement line -->
+    <svg class="brand-logo" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <!-- Cap -->
+      <rect x="17" y="3" width="14" height="3.5" rx="1.2" fill="currentColor"/>
+      <!-- Neck -->
+      <rect x="19" y="6.5" width="10" height="3" fill="currentColor" opacity="0.85"/>
+      <!-- Body outline -->
+      <path d="M14.5 10 L14.5 38 Q14.5 44 24 44 Q33.5 44 33.5 38 L33.5 10 Z"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      <!-- Liquid fill (lower half) -->
+      <path d="M16 26 L16 38 Q16 42.4 24 42.4 Q32 42.4 32 38 L32 26 Z"
+            fill="currentColor" opacity="0.22"/>
+      <!-- Meniscus / fill line -->
+      <line x1="16" y1="26" x2="32" y2="26" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Tick marks on right -->
+      <line x1="35" y1="16" x2="38" y2="16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="35" y1="22" x2="37" y2="22" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.55"/>
+      <line x1="35" y1="28" x2="38" y2="28" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="35" y1="34" x2="37" y2="34" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.55"/>
+    </svg>
+    <div class="brand-text">
+      <span class="brand-name">Vial<b>wise</b></span>
+      <span class="brand-tag">Reconstitute · Draw · Repeat</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <svg id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </svg>
+      <svg id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- Main container ────────────────────────────────────────── -->
+<main class="container">
+
+  <!-- Tabs -->
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-tab="reconst" role="tab">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 3h6v3l3 5v8a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-8l3-5V3z"/>
+        <line x1="6" y1="14" x2="18" y2="14"/>
+      </svg>
+      Reconstitute
+    </button>
+    <button class="tab" data-tab="draw" role="tab">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 5l-7 7-3-3-7 7M19 5h-5M19 5v5"/>
+      </svg>
+      Draw Dose
+    </button>
+    <button class="tab" data-tab="profiles" role="tab">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+      </svg>
+      Profiles
+      <span class="tab-count" id="profile-count">0</span>
+    </button>
+  </div>
+
+  <!-- ───────────── RECONSTITUTE PANEL ───────────── -->
+  <section class="panel active" id="panel-reconst">
+    <div class="grid">
+
+      <!-- Inputs -->
+      <div class="card">
+        <div class="card-eyebrow">Step One</div>
+        <div class="card-title">Pick your <b>peptide</b>.</div>
+
+        <div class="field">
+          <div class="field-row">
+            <label class="label" for="r-preset">Preset Library</label>
+            <span class="label-hint">quick start</span>
+          </div>
+          <select class="select" id="r-preset">
+            <option value="">— Select a peptide —</option>
+            <option value="bpc-157">BPC-157 · 5 mg</option>
+            <option value="tb-500">TB-500 · 5 mg</option>
+            <option value="ghk-cu">GHK-Cu · 50 mg</option>
+            <option value="semaglutide">Semaglutide · 5 mg</option>
+            <option value="tirzepatide">Tirzepatide · 10 mg</option>
+            <option value="ipamorelin">Ipamorelin · 5 mg</option>
+            <option value="cjc-1295">CJC-1295 · 5 mg</option>
+          </select>
+        </div>
+
+        <div class="field" id="r-field-strength">
+          <div class="field-row">
+            <label class="label" for="r-strength">Peptide Strength</label>
+            <span class="label-hint">mg in vial</span>
+          </div>
+          <select class="select" id="r-strength">
+            <option value="1">1 mg</option>
+            <option value="2">2 mg</option>
+            <option value="5" selected>5 mg</option>
+            <option value="10">10 mg</option>
+            <option value="15">15 mg</option>
+            <option value="20">20 mg</option>
+            <option value="30">30 mg</option>
+            <option value="40">40 mg</option>
+            <option value="50">50 mg</option>
+            <option value="60">60 mg</option>
+            <option value="70">70 mg</option>
+            <option value="80">80 mg</option>
+            <option value="90">90 mg</option>
+            <option value="100">100 mg</option>
+            <option value="custom">Custom…</option>
+          </select>
+          <div class="custom-strength" id="r-custom-wrap">
+            <input type="number" class="input" id="r-strength-custom" min="0" step="0.1" placeholder="Enter mg (e.g., 7.5)">
+          </div>
+          <div class="field-error">Enter a positive value.</div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn btn-secondary" id="r-save-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save as Profile
+          </button>
+        </div>
+      </div>
+
+      <!-- Recommendation -->
+      <div>
+        <div class="recommend-hero">
+          <div class="recommend-eyebrow">Add this much BAC water</div>
+          <div class="recommend-amount" id="rec-amount">0.5<span class="unit">mL</span></div>
+          <div class="recommend-sub">of bacteriostatic water</div>
+        </div>
+
+        <div class="how-to">
+          <div class="how-to-head">
+            <div class="how-to-title">How to add it</div>
+            <div class="how-to-aside">100-unit insulin syringe · 100 u = 1 mL</div>
+          </div>
+
+          <div class="syringe-row" id="syringe-row" aria-label="visual count of syringes needed">
+            <!-- mini syringes injected by JS -->
+          </div>
+
+          <div class="how-to-step">
+            <div class="step-num">1</div>
+            <div>Wipe the vial's rubber stopper with an alcohol swab.</div>
+          </div>
+          <div class="how-to-step">
+            <div class="step-num">2</div>
+            <div id="step-2">Draw <b id="how-units">50 units</b> <span class="mono" id="how-mL">(0.50 mL)</span> of bacteriostatic water into a 100-unit insulin syringe. <span id="how-syringes-text"></span></div>
+          </div>
+          <div class="how-to-step">
+            <div class="step-num">3</div>
+            <div>Slowly inject the water down the side of the vial — do not aim directly at the powder.</div>
+          </div>
+          <div class="how-to-step">
+            <div class="step-num">4</div>
+            <div>Gently swirl (do not shake) until fully dissolved. Refrigerate.</div>
+          </div>
+
+          <div class="ratio-result">
+            <div class="ratio-eyebrow">After mixing, your dose ratio is</div>
+            <div class="ratio-text" id="ratio-text">Every <mark>10 units</mark> = <mark>1 mg</mark> of peptide.</div>
+          </div>
+
+          <div class="override">
+            <div class="override-label">Want a different concentration? Set custom BAC volume:</div>
+            <input type="number" class="input" id="r-bac-custom" min="0" step="0.1" placeholder="e.g., 3.0 mL">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───────────── DRAW DOSE PANEL ───────────── -->
+  <section class="panel" id="panel-draw">
+    <div class="grid">
+
+      <!-- Inputs -->
+      <div class="card">
+        <div class="card-eyebrow">Step Two</div>
+        <div class="card-title">What's in your <b>vial</b>?</div>
+
+        <div class="field">
+          <div class="field-row">
+            <label class="label" for="d-profile">Load a Profile</label>
+            <span class="label-hint">optional</span>
+          </div>
+          <select class="select" id="d-profile">
+            <option value="">— Select a saved profile —</option>
+          </select>
+        </div>
+
+        <div class="field" id="d-field-strength">
+          <div class="field-row">
+            <label class="label" for="d-strength">Peptide in Vial</label>
+            <span class="label-hint">total mg</span>
+          </div>
+          <input type="number" class="input" id="d-strength" min="0" step="0.1" value="20" placeholder="e.g., 20">
+          <div class="field-error">Enter a positive value.</div>
+        </div>
+
+        <div class="field" id="d-field-bac">
+          <div class="field-row">
+            <label class="label" for="d-bac">BAC Water in Vial</label>
+            <span class="label-hint">total mL</span>
+          </div>
+          <input type="number" class="input" id="d-bac" min="0" step="0.1" value="2" placeholder="e.g., 2.0">
+          <div class="field-error">BAC water must be greater than zero.</div>
+        </div>
+
+        <div class="field" id="d-field-dose">
+          <div class="field-row">
+            <label class="label" for="d-dose">Desired Dose</label>
+            <span class="label-hint">per injection</span>
+          </div>
+          <div class="input-group">
+            <input type="number" class="input" id="d-dose" min="0" step="0.01" value="1" placeholder="e.g., 1">
+            <div class="unit-toggle">
+              <button type="button" class="unit-btn" data-unit="mcg">mcg</button>
+              <button type="button" class="unit-btn active" data-unit="mg">mg</button>
+            </div>
+          </div>
+          <div class="field-error">Dose cannot exceed total peptide in vial.</div>
+        </div>
+
+        <div class="field">
+          <div class="field-row">
+            <label class="label" for="d-syringe">Syringe Size</label>
+            <span class="label-hint">U-100 insulin</span>
+          </div>
+          <select class="select" id="d-syringe">
+            <option value="0.5">0.5 mL · 50 units</option>
+            <option value="1.0" selected>1.0 mL · 100 units</option>
+          </select>
+        </div>
+
+        <div class="action-row">
+          <button class="btn btn-secondary" id="d-save-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+            </svg>
+            Save as Profile
+          </button>
+          <button class="btn btn-ghost" id="d-reset-btn" type="button">Reset</button>
+        </div>
+      </div>
+
+      <!-- Visualization + Results -->
+      <div>
+        <div class="card" style="margin-bottom: 18px;">
+          <div class="card-eyebrow">Draw Visualization</div>
+          <div class="card-title" id="d-syringe-title"><b>1.0 mL</b> insulin syringe</div>
+
+          <div class="syringe-stage">
+            <svg class="syringe-svg" id="syringe-svg" viewBox="0 0 620 180" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"  stop-color="var(--liquid)" stop-opacity="0.55"/>
+                  <stop offset="50%" stop-color="var(--liquid)" stop-opacity="0.85"/>
+                  <stop offset="100%" stop-color="var(--liquid)" stop-opacity="0.55"/>
+                </linearGradient>
+                <linearGradient id="barrelGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--surface-3)" stop-opacity="0.6"/>
+                  <stop offset="100%" stop-color="var(--surface-2)" stop-opacity="0.6"/>
+                </linearGradient>
+              </defs>
+              <g id="syringe-group"></g>
+            </svg>
+          </div>
+
+          <div class="warning-box" id="capacity-warning">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>Dose exceeds syringe capacity — use a larger syringe or split the dose.</span>
+          </div>
+
+          <div class="draw-meta">
+            <div class="draw-meta-item">
+              <div class="draw-meta-label">Draw Volume</div>
+              <div class="draw-meta-value"><span id="meta-ml">0.10</span><span class="unit">mL</span></div>
+            </div>
+            <div class="draw-meta-item">
+              <div class="draw-meta-label">Syringe Units</div>
+              <div class="draw-meta-value"><span id="meta-units">10</span><span class="unit">units</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-eyebrow">Results</div>
+          <div class="card-title">Your <b>draw</b>.</div>
+
+          <div class="summary">
+            <div class="summary-text" id="summary-text">
+              Draw <mark>10 units</mark> (<mark>0.10 mL</mark>) for a <mark>1 mg</mark> dose.
+            </div>
+            <button class="btn" id="copy-btn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              Copy
+            </button>
+          </div>
+
+          <div class="results-grid">
+            <div class="result-card">
+              <div class="result-label">Concentration</div>
+              <div class="result-value"><span id="res-conc-mg">10.0</span><span class="unit">mg/mL</span></div>
+              <div class="result-sub"><span id="res-conc-mcg">10,000</span> mcg/mL</div>
+            </div>
+            <div class="result-card">
+              <div class="result-label">Doses per Vial</div>
+              <div class="result-value"><span id="res-doses">20</span><span class="unit">doses</span></div>
+              <div class="result-sub"><span id="res-doses-detail">at 1 mg each</span></div>
+            </div>
+          </div>
+
+          <details class="disclosure">
+            <summary>How it's calculated</summary>
+            <div class="formula">
+              <div><em>Concentration</em> = Peptide in Vial ÷ BAC Water Volume</div>
+              <div><em>Volume to Draw</em> = Desired Dose ÷ Concentration</div>
+              <div><em>Syringe Units</em> = Volume to Draw × 100 &nbsp;<span style="color:var(--text-subtle)">(U-100)</span></div>
+              <div><em>Doses per Vial</em> = Total Peptide ÷ Desired Dose</div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───────────── PROFILES PANEL ───────────── -->
+  <section class="panel" id="panel-profiles">
+    <div id="profiles-container"></div>
+  </section>
+
+  <p class="footer-note">Always verify calculations independently.</p>
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Save profile dialog -->
+<div class="dialog-backdrop" id="save-dialog">
+  <div class="dialog">
+    <h3>Save this profile</h3>
+    <div class="field">
+      <label class="label" for="profile-name">Profile name</label>
+      <input type="text" class="input" id="profile-name" placeholder="e.g., GHK-Cu Daily" maxlength="40" style="margin-top: 6px;">
+    </div>
+    <div id="save-summary" style="font-family: var(--mono); font-size: 12px; color: var(--text-muted); background: var(--surface-2); padding: 12px; border-radius: var(--radius); margin-bottom: 4px; line-height: 1.6;"></div>
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" id="cancel-save">Cancel</button>
+      <button class="btn" id="confirm-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   VIALWISE — vanilla JS
+   ============================================================ */
+
+/* ── Storage abstraction (graceful fallback) ─────────────── */
+const Storage = {
+  _mem: {},
+  _key: 'vialwise-v1',
+  read() {
+    try {
+      const raw = localStorage.getItem(this._key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return this._mem[this._key] || null; }
+  },
+  write(data) {
+    try { localStorage.setItem(this._key, JSON.stringify(data)); }
+    catch (e) { this._mem[this._key] = data; }
+  }
+};
+
+/* ── App state ──────────────────────────────────────────── */
+const state = {
+  doseUnit: 'mg',          // dose unit on Draw tab
+  profiles: [],
+  currentTab: 'reconst',
+  saveSource: 'reconst',   // which tab triggered the save dialog
+  recCustomBac: null,      // user-overridden BAC on Reconst tab (null = use recommended)
+};
+
+/* Preset peptide library — typical research vial sizes */
+const PRESETS = {
+  'bpc-157':     { name: 'BPC-157',     strength: 5 },
+  'tb-500':      { name: 'TB-500',      strength: 5 },
+  'ghk-cu':      { name: 'GHK-Cu',      strength: 50 },
+  'semaglutide': { name: 'Semaglutide', strength: 5 },
+  'tirzepatide': { name: 'Tirzepatide', strength: 10 },
+  'ipamorelin':  { name: 'Ipamorelin',  strength: 5 },
+  'cjc-1295':    { name: 'CJC-1295',    strength: 5 },
+};
+
+/* ── DOM refs ───────────────────────────────────────────── */
+const $ = (id) => document.getElementById(id);
+const els = {
+  tabs: document.querySelectorAll('.tab'),
+  panels: document.querySelectorAll('.panel'),
+  themeToggle: $('theme-toggle'),
+  iconSun: $('icon-sun'),
+  iconMoon: $('icon-moon'),
+  toast: $('toast'),
+  // Reconst
+  rPreset: $('r-preset'),
+  rStrength: $('r-strength'),
+  rStrengthCustom: $('r-strength-custom'),
+  rCustomWrap: $('r-custom-wrap'),
+  rFieldStrength: $('r-field-strength'),
+  rBacCustom: $('r-bac-custom'),
+  rSaveBtn: $('r-save-btn'),
+  recAmount: $('rec-amount'),
+  syringeRow: $('syringe-row'),
+  howUnits: $('how-units'),
+  howMl: $('how-mL'),
+  howSyringesText: $('how-syringes-text'),
+  ratioText: $('ratio-text'),
+  // Draw
+  dProfile: $('d-profile'),
+  dStrength: $('d-strength'),
+  dFieldStrength: $('d-field-strength'),
+  dBac: $('d-bac'),
+  dFieldBac: $('d-field-bac'),
+  dDose: $('d-dose'),
+  dFieldDose: $('d-field-dose'),
+  dSyringe: $('d-syringe'),
+  dSyringeTitle: $('d-syringe-title'),
+  dSaveBtn: $('d-save-btn'),
+  dResetBtn: $('d-reset-btn'),
+  unitBtns: document.querySelectorAll('.unit-btn'),
+  syringeGroup: $('syringe-group'),
+  capacityWarning: $('capacity-warning'),
+  metaMl: $('meta-ml'),
+  metaUnits: $('meta-units'),
+  resConcMg: $('res-conc-mg'),
+  resConcMcg: $('res-conc-mcg'),
+  resDoses: $('res-doses'),
+  resDosesDetail: $('res-doses-detail'),
+  summary: $('summary-text'),
+  copyBtn: $('copy-btn'),
+  // Profiles
+  profilesContainer: $('profiles-container'),
+  profileCount: $('profile-count'),
+  // Dialog
+  saveDialog: $('save-dialog'),
+  profileName: $('profile-name'),
+  saveSummary: $('save-summary'),
+  cancelSave: $('cancel-save'),
+  confirmSave: $('confirm-save'),
+};
+
+/* ── Formatting helpers ─────────────────────────────────── */
+const fmt = {
+  ml(n)    { return (Math.round(n * 100) / 100).toFixed(2); },
+  mlSmart(n) {                          // 0.5 → "0.5", 1 → "1", 2.5 → "2.5"
+    if (n === Math.floor(n)) return n.toString();
+    return (Math.round(n * 100) / 100).toString();
+  },
+  units(n) { return Math.round(n).toString(); },
+  mg(n)    {
+    if (n >= 10) return n.toFixed(1);
+    if (n >= 1)  return n.toFixed(2);
+    return n.toFixed(3);
+  },
+  mcg(n)   { return Math.round(n).toLocaleString(); },
+  doses(n) { return Math.floor(n).toString(); },
+};
+
+/* ── Field error toggle ─────────────────────────────────── */
+function setFieldError(field, hasError, message) {
+  field.classList.toggle('has-error', hasError);
+  if (hasError && message) {
+    const e = field.querySelector('.field-error');
+    if (e) e.textContent = message;
+  }
+}
+
+/* ── Toast ──────────────────────────────────────────────── */
+let toastTimer;
+function toast(msg) {
+  els.toast.textContent = msg;
+  els.toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => els.toast.classList.remove('show'), 1800);
+}
+
+/* ── Theme ──────────────────────────────────────────────── */
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  els.iconSun.style.display = theme === 'dark' ? 'none' : 'block';
+  els.iconMoon.style.display = theme === 'dark' ? 'block' : 'none';
+  // Re-render syringe so SVG colors baked at render time refresh
+  updateDraw();
+  renderMiniSyringes();
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(cur === 'dark' ? 'light' : 'dark');
+  saveAppData();
+}
+
+/* ============================================================
+   RECONSTITUTION TAB
+   ============================================================ */
+
+function getReconstStrength() {
+  const v = els.rStrength.value;
+  if (v === 'custom') return parseFloat(els.rStrengthCustom.value) || 0;
+  return parseFloat(v) || 0;
+}
+
+/* Recommendation: 1 mL per 10 mg → gives 10 units = 1 mg */
+function recommendBac(strengthMg) { return strengthMg / 10; }
+
+/* Build a single mini-syringe SVG (fill 0–1) */
+function miniSyringeSVG(fillFrac) {
+  const w = 78, h = 32;
+  const barrelX = 14, barrelY = 8, barrelW = 50, barrelH = 16;
+  // Liquid fills barrel from right (needle side) to fillFrac
+  const liquidW = barrelW * Math.max(0, Math.min(1, fillFrac));
+  const liquidX = barrelX + (barrelW - liquidW);
+  // Plunger position (right edge of seal)
+  const sealRight = barrelX + (barrelW - liquidW);
+  return `
+    <svg class="mini-syringe" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+      <!-- Plunger handle -->
+      <rect x="0" y="6" width="3" height="20" fill="var(--text-muted)" rx="1"/>
+      <rect x="3" y="13" width="${sealRight - 5}" height="6" fill="var(--text-subtle)" rx="1"/>
+      <!-- Plunger seal -->
+      <rect x="${sealRight - 4}" y="8" width="4" height="16" fill="var(--text-muted)" rx="0.5"/>
+      <!-- Barrel outline -->
+      <rect x="${barrelX}" y="${barrelY}" width="${barrelW}" height="${barrelH}" fill="none" stroke="var(--border-strong)" stroke-width="1" rx="1.5"/>
+      <!-- Liquid fill -->
+      <rect x="${liquidX}" y="${barrelY + 1}" width="${liquidW}" height="${barrelH - 2}" fill="var(--liquid)" opacity="0.7" rx="0.5"/>
+      <!-- Hub -->
+      <polygon points="${barrelX + barrelW},${barrelY + 1} ${barrelX + barrelW},${barrelY + barrelH - 1} ${barrelX + barrelW + 4},${barrelY + barrelH - 3} ${barrelX + barrelW + 4},${barrelY + 3}" fill="var(--surface-3)" stroke="var(--border-strong)" stroke-width="0.7"/>
+      <!-- Needle -->
+      <rect x="${barrelX + barrelW + 4}" y="${barrelY + barrelH/2 - 0.7}" width="10" height="1.4" fill="var(--text-muted)" rx="0.5"/>
+    </svg>
+  `;
+}
+
+/* Build the row of mini-syringes given total mL */
+function renderMiniSyringes() {
+  const totalMl = state.recCustomBac !== null ? state.recCustomBac : recommendBac(getReconstStrength());
+  els.syringeRow.innerHTML = '';
+  if (!isFinite(totalMl) || totalMl <= 0) {
+    els.syringeRow.innerHTML = `<span style="font-family:var(--mono);font-size:12px;color:var(--text-subtle)">Enter peptide strength to see syringe count</span>`;
+    return;
+  }
+  // Cap visual at 10 syringes for display sanity; show "+N more" beyond
+  const fullCount = Math.floor(totalMl + 1e-9);
+  const partial = +(totalMl - fullCount).toFixed(3);
+  const VISUAL_CAP = 10;
+  let drawn = 0;
+
+  for (let i = 0; i < Math.min(fullCount, VISUAL_CAP); i++) {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = miniSyringeSVG(1);
+    els.syringeRow.appendChild(wrap.firstElementChild);
+    drawn++;
+  }
+  if (partial > 0.001 && drawn < VISUAL_CAP) {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = miniSyringeSVG(partial);
+    els.syringeRow.appendChild(wrap.firstElementChild);
+    drawn++;
+  }
+  // Overflow indicator
+  const totalSyringes = fullCount + (partial > 0.001 ? 1 : 0);
+  if (totalSyringes > VISUAL_CAP) {
+    const more = document.createElement('span');
+    more.className = 'mini-syringe-count';
+    more.textContent = `+${totalSyringes - VISUAL_CAP} more`;
+    els.syringeRow.appendChild(more);
+  }
+}
+
+/* "How to add it" instruction text */
+function renderHowToInstructions(totalMl) {
+  if (!isFinite(totalMl) || totalMl <= 0) {
+    els.howUnits.textContent = '—';
+    els.howMl.textContent = '';
+    els.howSyringesText.textContent = '';
+    return;
+  }
+
+  const full = Math.floor(totalMl + 1e-9);
+  const partial = +(totalMl - full).toFixed(3);
+
+  if (totalMl <= 1) {
+    // Single sub-syringe transfer
+    const units = Math.round(totalMl * 100);
+    els.howUnits.textContent = `${units} units`;
+    els.howMl.textContent = `(${fmt.mlSmart(totalMl)} mL)`;
+    let descriptor = '';
+    if (totalMl === 0.5) descriptor = 'Half a full syringe.';
+    else if (totalMl === 0.25) descriptor = 'A quarter of a full syringe.';
+    else if (totalMl === 0.75) descriptor = 'Three-quarters of a full syringe.';
+    else descriptor = `That's ${(totalMl * 100).toFixed(0)} units on a 100-unit insulin syringe.`;
+    els.howSyringesText.textContent = descriptor;
+  } else {
+    // Multiple syringes
+    if (partial < 0.005) {
+      els.howUnits.textContent = `${full} full syringes`;
+      els.howMl.textContent = `(${fmt.mlSmart(totalMl)} mL total)`;
+      els.howSyringesText.textContent = `Inject one at a time, repeating ${full === 2 ? 'twice' : full === 3 ? 'three times' : `${full} times`}.`;
+    } else {
+      const partialUnits = Math.round(partial * 100);
+      els.howUnits.textContent = `${full} full syringes + ${partialUnits} units`;
+      els.howMl.textContent = `(${fmt.mlSmart(totalMl)} mL total)`;
+      els.howSyringesText.textContent = `Inject ${full} full syringes, then a final ${partialUnits} units (${fmt.mlSmart(partial)} mL).`;
+    }
+  }
+}
+
+/* Resulting ratio after reconstitution */
+function renderRatio(strengthMg, bacMl) {
+  if (!(strengthMg > 0 && bacMl > 0)) {
+    els.ratioText.innerHTML = `Enter values to see your dose ratio.`;
+    return;
+  }
+  const concMgPerMl = strengthMg / bacMl;
+  // Express as: every X units = Y mg (or mcg if < 0.1 mg per 10 units)
+  // Pick a convenient reference dose.
+  // Default: "every 10 units = X mg"
+  const mgPer10Units = concMgPerMl * 0.1;        // 10u = 0.1 mL
+  if (mgPer10Units >= 0.5) {
+    els.ratioText.innerHTML = `Every <mark>10 units</mark> = <mark>${fmt.mg(mgPer10Units)} mg</mark> of peptide.`;
+  } else {
+    const mcgPer10Units = mgPer10Units * 1000;
+    els.ratioText.innerHTML = `Every <mark>10 units</mark> = <mark>${fmt.mcg(mcgPer10Units)} mcg</mark> of peptide.`;
+  }
+}
+
+function updateReconst() {
+  const strength = getReconstStrength();
+  const isValidStrength = strength > 0;
+
+  setFieldError(els.rFieldStrength, !isValidStrength, 'Enter a positive value.');
+
+  // Determine BAC volume to display
+  const recommended = recommendBac(strength);
+  const useCustom = state.recCustomBac !== null && state.recCustomBac > 0;
+  const bacMl = useCustom ? state.recCustomBac : recommended;
+
+  // Big amount display
+  if (isValidStrength) {
+    const display = fmt.mlSmart(bacMl);
+    els.recAmount.innerHTML = `${display}<span class="unit">mL</span>`;
+  } else {
+    els.recAmount.innerHTML = `—<span class="unit">mL</span>`;
+  }
+
+  renderMiniSyringes();
+  renderHowToInstructions(isValidStrength ? bacMl : 0);
+  renderRatio(strength, bacMl);
+}
+
+/* ============================================================
+   DRAW DOSE TAB
+   ============================================================ */
+
+function getDrawStrength() { return parseFloat(els.dStrength.value) || 0; }
+function getDrawBac()      { return parseFloat(els.dBac.value) || 0; }
+function getDrawDoseRaw()  { return parseFloat(els.dDose.value) || 0; }
+function getDrawDoseMg() {
+  const raw = getDrawDoseRaw();
+  return state.doseUnit === 'mcg' ? raw / 1000 : raw;
+}
+function getSyringeMl()    { return parseFloat(els.dSyringe.value); }
+function getSyringeUnits() { return getSyringeMl() === 0.5 ? 50 : 100; }
+
+function calculateDraw() {
+  const strength = getDrawStrength();
+  const bac = getDrawBac();
+  const doseMg = getDrawDoseMg();
+  const doseRaw = getDrawDoseRaw();
+  const syringeMl = getSyringeMl();
+  const syringeUnits = getSyringeUnits();
+
+  const errors = {
+    strength: strength <= 0,
+    bac: bac <= 0,
+    dose: doseRaw <= 0 || (doseMg > strength && strength > 0),
+  };
+  const valid = !errors.strength && !errors.bac && !errors.dose;
+
+  const concMgPerMl  = bac > 0 ? strength / bac : 0;
+  const concMcgPerMl = concMgPerMl * 1000;
+  const volumeMl     = concMgPerMl > 0 ? doseMg / concMgPerMl : 0;
+  const units        = volumeMl * 100;
+  const totalDoses   = doseMg > 0 ? strength / doseMg : 0;
+  const exceedsCapacity = volumeMl > syringeMl;
+
+  return {
+    valid, errors,
+    strength, bac, doseMg, doseRaw, doseUnit: state.doseUnit,
+    syringeMl, syringeUnits,
+    concMgPerMl, concMcgPerMl,
+    volumeMl, units, totalDoses, exceedsCapacity,
+  };
+}
+
+/* ── Render the big draw syringe ─────────────────────────── */
+function renderSyringe(opts) {
+  const { syringeMl, syringeUnits, fillUnits, volumeMl } = opts;
+
+  const FULL_BARREL = 360;
+  const barrelLen = syringeMl === 0.5 ? FULL_BARREL / 2 : FULL_BARREL;
+  const bx_start = 130;
+  const bx_end = bx_start + barrelLen;
+  const bi_start = bx_start + 4;
+  const bi_end   = bx_end - 2;
+  const SEAL_W = 12;
+
+  const sealRange = (bi_end) - (bi_start + SEAL_W);
+
+  const visualFillUnits = Math.min(fillUnits, syringeUnits);
+  const fillFrac = syringeUnits > 0 ? visualFillUnits / syringeUnits : 0;
+
+  const plungerTx = -fillFrac * sealRange;
+  const sealRightDisplay = bi_end - fillFrac * sealRange;
+  const liquidX = sealRightDisplay;
+  const liquidW = bi_end - sealRightDisplay;
+
+  // Tick marks
+  let ticksHTML = '';
+  for (let v = 0; v <= syringeUnits; v += 5) {
+    const txAdj = bi_end - (v / syringeUnits) * sealRange;
+    const isMajor = v % 10 === 0;
+    const tickH = isMajor ? 9 : 5;
+    ticksHTML += `<line x1="${txAdj}" y1="${56 - tickH}" x2="${txAdj}" y2="56" stroke="var(--text-muted)" stroke-width="${isMajor ? 1.3 : 1}" stroke-linecap="round" opacity="${isMajor ? 0.85 : 0.5}"/>`;
+    if (isMajor && v > 0) {
+      ticksHTML += `<text x="${txAdj}" y="40" text-anchor="middle" font-family="var(--mono)" font-size="9" font-weight="600" fill="var(--text-muted)" letter-spacing="0.05em">${v}</text>`;
+    }
+  }
+
+  const indicatorX = sealRightDisplay;
+  const showIndicator = fillUnits > 0;
+  const indicatorLabel = `${fmt.units(visualFillUnits)} u · ${fmt.ml(Math.min(volumeMl, syringeMl))} mL`;
+
+  els.syringeGroup.innerHTML = `
+    <g id="ticks">${ticksHTML}</g>
+
+    <rect x="${bx_start}" y="60" width="${barrelLen}" height="60"
+          fill="url(#barrelGrad)" stroke="var(--border-strong)" stroke-width="1.5" rx="3"/>
+
+    <rect id="liquid" x="${liquidX}" y="62" width="${Math.max(0, liquidW)}" height="56"
+          fill="url(#liquidGrad)"
+          style="transition: x 0.35s cubic-bezier(0.4, 0, 0.2, 1), width 0.35s cubic-bezier(0.4, 0, 0.2, 1);"/>
+
+    <line x1="${liquidX}" y1="62" x2="${liquidX}" y2="118"
+          stroke="var(--liquid-edge)" stroke-width="1" opacity="${fillFrac > 0.01 ? 0.6 : 0}"
+          style="transition: x1 0.35s cubic-bezier(0.4, 0, 0.2, 1), x2 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s;"/>
+
+    <polygon points="${bx_end},66 ${bx_end},114 ${bx_end + 18},108 ${bx_end + 18},72"
+             fill="var(--surface-3)" stroke="var(--border-strong)" stroke-width="1"/>
+    <rect x="${bx_end + 18}" y="88" width="68" height="3.5" fill="var(--text-muted)" rx="1"/>
+    <polygon points="${bx_end + 86},88 ${bx_end + 92},90 ${bx_end + 86},91.5" fill="var(--text-muted)"/>
+
+    <g id="plunger" style="transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(${plungerTx}px);">
+      <rect x="0" y="50" width="10" height="80" fill="var(--text-muted)" rx="2"/>
+      <rect x="10" y="68" width="10" height="44" fill="var(--text-subtle)" rx="1.5"/>
+      <rect x="20" y="86" width="${bi_end - SEAL_W - 20}" height="8" fill="var(--text-subtle)" rx="1.5"/>
+      <rect x="${bi_end - SEAL_W}" y="60" width="${SEAL_W}" height="60"
+            fill="var(--text-muted)" stroke="var(--text)" stroke-width="0.5" rx="1.5"/>
+    </g>
+
+    <g id="fill-indicator"
+       style="transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s; transform: translateX(${indicatorX}px); opacity: ${showIndicator ? 1 : 0};">
+      <line x1="0" y1="125" x2="0" y2="138" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
+      <polygon points="0,123 -3,128 3,128" fill="var(--accent)"/>
+      <rect x="-58" y="140" width="116" height="20" rx="3" fill="var(--accent)"/>
+      <text x="0" y="154" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="white" letter-spacing="0.02em">${indicatorLabel}</text>
+    </g>
+  `;
+}
+
+function updateDraw() {
+  const r = calculateDraw();
+
+  setFieldError(els.dFieldStrength, r.errors.strength, 'Enter a positive value.');
+  setFieldError(els.dFieldBac, r.errors.bac, 'BAC water must be greater than zero.');
+  if (r.errors.dose) {
+    if (r.doseRaw <= 0)            setFieldError(els.dFieldDose, true, 'Enter a positive dose.');
+    else if (r.doseMg > r.strength) setFieldError(els.dFieldDose, true, 'Dose cannot exceed total peptide in vial.');
+  } else setFieldError(els.dFieldDose, false);
+
+  els.dSyringeTitle.innerHTML = `<b>${r.syringeMl.toFixed(1)} mL</b> insulin syringe`;
+  els.capacityWarning.classList.toggle('visible', r.valid && r.exceedsCapacity);
+
+  renderSyringe({
+    syringeMl: r.syringeMl,
+    syringeUnits: r.syringeUnits,
+    fillUnits: r.valid ? r.units : 0,
+    volumeMl: r.valid ? r.volumeMl : 0,
+  });
+
+  if (r.valid) {
+    els.metaMl.textContent    = fmt.ml(r.volumeMl);
+    els.metaUnits.textContent = fmt.units(r.units);
+    els.resConcMg.textContent = fmt.mg(r.concMgPerMl);
+    els.resConcMcg.textContent = Math.round(r.concMcgPerMl).toLocaleString();
+    els.resDoses.textContent  = fmt.doses(r.totalDoses);
+    const doseStr = r.doseUnit === 'mcg' ? `${fmt.mcg(r.doseRaw)} mcg` : `${fmt.mg(r.doseRaw)} mg`;
+    els.resDosesDetail.textContent = `at ${doseStr} each`;
+    els.summary.innerHTML =
+      `Draw <mark>${fmt.units(r.units)} units</mark> ` +
+      `(<mark>${fmt.ml(r.volumeMl)} mL</mark>) for a ` +
+      `<mark>${doseStr}</mark> dose.`;
+  } else {
+    els.metaMl.textContent = '—';
+    els.metaUnits.textContent = '—';
+    els.resConcMg.textContent = '—';
+    els.resConcMcg.textContent = '—';
+    els.resDoses.textContent = '—';
+    els.resDosesDetail.textContent = 'enter values';
+    els.summary.innerHTML = '<span style="color:var(--text-subtle)">Complete the inputs to see your draw.</span>';
+  }
+}
+
+/* ============================================================
+   PROFILES
+   ============================================================ */
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function renderProfiles() {
+  els.profileCount.textContent = state.profiles.length;
+
+  // Update Draw tab profile dropdown
+  els.dProfile.innerHTML = '<option value="">— Select a saved profile —</option>' +
+    state.profiles.map((p, i) => `<option value="${i}">${escapeHtml(p.name)} · ${p.strength} mg / ${fmt.mlSmart(p.bac || 0) || '?'} mL</option>`).join('');
+
+  if (state.profiles.length === 0) {
+    els.profilesContainer.innerHTML = `
+      <div class="card">
+        <div class="profiles-empty">
+          <p class="lead">No saved profiles yet.</p>
+          <p class="small">Configure a peptide on the Reconstitute or Draw tab and tap <b>Save as Profile</b> to keep it here for quick recall.</p>
+        </div>
+      </div>`;
+    return;
+  }
+  const cards = state.profiles.map((p, i) => {
+    const conc = p.bac > 0 ? p.strength / p.bac : 0;
+    const concStr = conc > 0 ? `${fmt.mg(conc)} mg/mL` : '—';
+    return `
+      <div class="profile-card">
+        <div class="profile-name">${escapeHtml(p.name)}</div>
+        <div class="profile-meta">${concStr} concentration</div>
+        <div class="profile-stats">
+          <div>
+            <div class="profile-stat-label">Strength</div>
+            <div class="profile-stat-value">${p.strength} mg</div>
+          </div>
+          <div>
+            <div class="profile-stat-label">BAC Water</div>
+            <div class="profile-stat-value">${p.bac ? fmt.mlSmart(p.bac) + ' mL' : '—'}</div>
+          </div>
+          ${p.dose ? `
+          <div>
+            <div class="profile-stat-label">Default Dose</div>
+            <div class="profile-stat-value">${p.dose} ${p.doseUnit}</div>
+          </div>` : ''}
+        </div>
+        <div class="profile-actions">
+          <button class="btn btn-secondary" data-load="${i}">Load to Draw</button>
+          <button class="btn btn-danger" data-delete="${i}">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  els.profilesContainer.innerHTML = `<div class="profiles-list">${cards}</div>`;
+
+  els.profilesContainer.querySelectorAll('[data-load]').forEach(btn =>
+    btn.addEventListener('click', () => loadProfileToDraw(parseInt(btn.dataset.load))));
+  els.profilesContainer.querySelectorAll('[data-delete]').forEach(btn =>
+    btn.addEventListener('click', () => deleteProfile(parseInt(btn.dataset.delete))));
+}
+
+function loadProfileToDraw(idx) {
+  const p = state.profiles[idx];
+  if (!p) return;
+  els.dStrength.value = p.strength;
+  if (p.bac) els.dBac.value = p.bac;
+  if (p.dose) {
+    els.dDose.value = p.dose;
+    setDoseUnit(p.doseUnit || 'mg');
+  }
+  if (p.syringeMl) els.dSyringe.value = p.syringeMl.toString();
+  els.dProfile.value = idx.toString();
+  switchTab('draw');
+  updateDraw();
+  toast(`Loaded "${p.name}"`);
+}
+
+function deleteProfile(idx) {
+  const p = state.profiles[idx];
+  if (!p) return;
+  if (!confirm(`Delete profile "${p.name}"?`)) return;
+  state.profiles.splice(idx, 1);
+  saveAppData();
+  renderProfiles();
+  toast('Profile deleted');
+}
+
+function setDoseUnit(unit) {
+  state.doseUnit = unit;
+  els.unitBtns.forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
+}
+
+/* ── Save dialog ────────────────────────────────────────── */
+function openSaveDialog(source) {
+  state.saveSource = source;
+
+  let summary = '';
+  let suggestedName = '';
+  if (source === 'reconst') {
+    const strength = getReconstStrength();
+    const bac = state.recCustomBac !== null ? state.recCustomBac : recommendBac(strength);
+    summary = `Strength: ${strength || '—'} mg\nBAC water: ${fmt.mlSmart(bac)} mL`;
+    const presetVal = els.rPreset.value;
+    suggestedName = presetVal && PRESETS[presetVal] ? PRESETS[presetVal].name : '';
+  } else {
+    const r = calculateDraw();
+    if (!r.valid) { toast('Fix input errors first'); return; }
+    const doseStr = r.doseUnit === 'mcg' ? `${fmt.mcg(r.doseRaw)} mcg` : `${fmt.mg(r.doseRaw)} mg`;
+    summary = `Strength: ${r.strength} mg\nBAC water: ${fmt.mlSmart(r.bac)} mL\nDose: ${doseStr}`;
+  }
+  els.saveSummary.textContent = summary;
+  els.profileName.value = suggestedName;
+  els.saveDialog.classList.add('show');
+  setTimeout(() => els.profileName.focus(), 50);
+}
+function closeSaveDialog() { els.saveDialog.classList.remove('show'); }
+
+function confirmSaveProfile() {
+  const name = els.profileName.value.trim();
+  if (!name) { toast('Enter a name'); return; }
+
+  let profile;
+  if (state.saveSource === 'reconst') {
+    const strength = getReconstStrength();
+    if (strength <= 0) { toast('Enter a peptide strength first'); return; }
+    const bac = state.recCustomBac !== null ? state.recCustomBac : recommendBac(strength);
+    profile = { name, strength, bac };
+  } else {
+    const r = calculateDraw();
+    if (!r.valid) { toast('Fix input errors first'); return; }
+    profile = {
+      name,
+      strength: r.strength,
+      bac: r.bac,
+      dose: r.doseRaw,
+      doseUnit: r.doseUnit,
+      syringeMl: r.syringeMl,
+    };
+  }
+  state.profiles.push(profile);
+  saveAppData();
+  closeSaveDialog();
+  toast(`Saved "${name}"`);
+  renderProfiles();
+}
+
+/* ── Persist app data ───────────────────────────────────── */
+function saveAppData() {
+  Storage.write({
+    theme: document.documentElement.getAttribute('data-theme') || 'light',
+    profiles: state.profiles,
+  });
+}
+function loadAppData() {
+  const data = Storage.read();
+  if (!data) return;
+  if (data.theme) applyTheme(data.theme);
+  if (Array.isArray(data.profiles)) state.profiles = data.profiles;
+}
+
+/* ── Tabs ───────────────────────────────────────────────── */
+function switchTab(name) {
+  state.currentTab = name;
+  els.tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  els.panels.forEach(p => p.classList.toggle('active', p.id === `panel-${name}`));
+  if (name === 'profiles') renderProfiles();
+}
+
+/* ── Reset Draw ─────────────────────────────────────────── */
+function resetDraw() {
+  els.dStrength.value = '20';
+  els.dBac.value = '2';
+  els.dDose.value = '1';
+  setDoseUnit('mg');
+  els.dSyringe.value = '1.0';
+  els.dProfile.value = '';
+  updateDraw();
+  toast('Reset');
+}
+
+/* ── Copy Draw summary ──────────────────────────────────── */
+async function copySummary() {
+  const r = calculateDraw();
+  if (!r.valid) { toast('Fix input errors first'); return; }
+  const doseStr = r.doseUnit === 'mcg' ? `${fmt.mcg(r.doseRaw)} mcg` : `${fmt.mg(r.doseRaw)} mg`;
+  const text = [
+    `Vialwise — Draw Calculation`,
+    `——————————————————————`,
+    `Vial:  ${r.strength} mg in ${fmt.mlSmart(r.bac)} mL BAC water`,
+    `Conc:  ${fmt.mg(r.concMgPerMl)} mg/mL (${Math.round(r.concMcgPerMl).toLocaleString()} mcg/mL)`,
+    `Dose:  ${doseStr}`,
+    `Draw:  ${fmt.units(r.units)} units (${fmt.ml(r.volumeMl)} mL) on a ${r.syringeMl} mL syringe`,
+    `Doses per vial: ${fmt.doses(r.totalDoses)}`,
+  ].join('\n');
+  try { await navigator.clipboard.writeText(text); toast('Copied to clipboard'); }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('Copied'); }
+    catch { toast('Copy failed'); }
+    document.body.removeChild(ta);
+  }
+}
+
+/* ── Wire up events ─────────────────────────────────────── */
+function init() {
+  loadAppData();
+
+  // Tabs
+  els.tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+  // Theme
+  els.themeToggle.addEventListener('click', toggleTheme);
+
+  // Reconst — preset
+  els.rPreset.addEventListener('change', () => {
+    const v = els.rPreset.value;
+    if (!v || !PRESETS[v]) return;
+    const preset = PRESETS[v];
+    setReconstStrength(preset.strength);
+    state.recCustomBac = null;
+    els.rBacCustom.value = '';
+    updateReconst();
+  });
+
+  // Reconst — strength
+  els.rStrength.addEventListener('change', () => {
+    if (els.rStrength.value === 'custom') {
+      els.rCustomWrap.classList.add('active');
+      els.rStrengthCustom.focus();
+    } else els.rCustomWrap.classList.remove('active');
+    state.recCustomBac = null;
+    els.rBacCustom.value = '';
+    updateReconst();
+  });
+  els.rStrengthCustom.addEventListener('input', () => {
+    state.recCustomBac = null;
+    els.rBacCustom.value = '';
+    updateReconst();
+  });
+
+  // Reconst — custom BAC override
+  els.rBacCustom.addEventListener('input', () => {
+    const v = parseFloat(els.rBacCustom.value);
+    state.recCustomBac = (v > 0 && isFinite(v)) ? v : null;
+    updateReconst();
+  });
+
+  els.rSaveBtn.addEventListener('click', () => openSaveDialog('reconst'));
+
+  // Draw — inputs
+  ['input', 'change'].forEach(ev => {
+    els.dStrength.addEventListener(ev, updateDraw);
+    els.dBac.addEventListener(ev, updateDraw);
+    els.dDose.addEventListener(ev, updateDraw);
+  });
+  els.dSyringe.addEventListener('change', updateDraw);
+  els.unitBtns.forEach(btn => {
+    btn.addEventListener('click', () => { setDoseUnit(btn.dataset.unit); updateDraw(); });
+  });
+
+  // Draw — profile dropdown
+  els.dProfile.addEventListener('change', () => {
+    const v = els.dProfile.value;
+    if (v === '') return;
+    loadProfileToDraw(parseInt(v));
+  });
+
+  els.dSaveBtn.addEventListener('click', () => openSaveDialog('draw'));
+  els.dResetBtn.addEventListener('click', resetDraw);
+
+  // Copy
+  els.copyBtn.addEventListener('click', copySummary);
+
+  // Dialog
+  els.cancelSave.addEventListener('click', closeSaveDialog);
+  els.confirmSave.addEventListener('click', confirmSaveProfile);
+  els.profileName.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') confirmSaveProfile();
+    if (e.key === 'Escape') closeSaveDialog();
+  });
+  els.saveDialog.addEventListener('click', (e) => {
+    if (e.target === els.saveDialog) closeSaveDialog();
+  });
+
+  // Initial render
+  updateReconst();
+  updateDraw();
+  renderProfiles();
+}
+
+function setReconstStrength(mg) {
+  const opt = Array.from(els.rStrength.options).find(o => parseFloat(o.value) === mg);
+  if (opt && opt.value !== 'custom') {
+    els.rStrength.value = opt.value;
+    els.rCustomWrap.classList.remove('active');
+  } else {
+    els.rStrength.value = 'custom';
+    els.rCustomWrap.classList.add('active');
+    els.rStrengthCustom.value = mg;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
